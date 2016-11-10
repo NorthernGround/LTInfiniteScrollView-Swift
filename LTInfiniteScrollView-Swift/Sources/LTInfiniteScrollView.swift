@@ -127,6 +127,7 @@ open class LTInfiniteScrollView: UIView {
         scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.height))
         scrollView.autoresizingMask = [UIViewAutoresizing.flexibleWidth, UIViewAutoresizing.flexibleHeight]
         scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
         scrollView.delegate = self
         scrollView.clipsToBounds = false
         addSubview(self.scrollView)
@@ -138,6 +139,7 @@ open class LTInfiniteScrollView: UIView {
         let viewHeight: CGFloat = bounds.height
         viewSize = CGSize(width: viewWidth, height: viewHeight)
         totalWidth = viewWidth * CGFloat(totalViewCount)
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         scrollView.contentSize = CGSize(width: self.totalWidth, height: self.bounds.height)
     }
     
@@ -237,18 +239,20 @@ open class LTInfiniteScrollView: UIView {
 extension LTInfiniteScrollView: UIScrollViewDelegate {
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let currentCenterX = currentCenter().x
-        let offsetX = scrollView.contentOffset.x
-        currentIndex = Int(round((currentCenterX - viewSize.width / 2) / viewSize.width))
-        if offsetX > preContentOffsetX {
-            scrollDirection = .next
+        if (viewSize != nil){
+            let currentCenterX = currentCenter().x
+            let offsetX = scrollView.contentOffset.x
+            currentIndex = Int(round((currentCenterX - viewSize.width / 2) / viewSize.width))
+            if offsetX > preContentOffsetX {
+                scrollDirection = .next
+            }
+            else {
+                scrollDirection = .previous
+            }
+            preContentOffsetX = offsetX
+            reArrangeViews()
+            updateProgress()
         }
-        else {
-            scrollDirection = .previous
-        }
-        preContentOffsetX = offsetX
-        reArrangeViews()
-        updateProgress()
     }
     
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
